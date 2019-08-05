@@ -21,36 +21,6 @@ public class KaratsubaAlgorithm {
         long adbc=karatsuba((a+b),(c+d))-ac-bd;
         return (long) (ac*Math.pow(10,half<<1) +bd+adbc*Math.pow(10,half));
     }
-
-    public static void main(String[] args) {
-//        String a = "1234567891011121314151617181920";
-//        String b = "2019181716151413121110987654321";
-
-//        String a = "999999999999";
-//        String b = "999999999999";
-
-//        String a = "24566";
-//        String b = "452053";
-
-        String a = "98";
-        String b = "21";
-
-        char[] charArr1 = a.trim().toCharArray();
-        char[] charArr2 = b.trim().toCharArray();
-
-        // 字符数组转换为int[]数组
-        int[] arr1 = new int[charArr1.length];
-        int[] arr2 = new int[charArr2.length];
-        for(int i = 0; i < charArr1.length; i++){
-            arr1[i] = charArr1[i] - '0';
-        }
-        for(int i = 0; i < charArr2.length; i++){
-            arr2[i] = charArr2[i] - '0';
-        }
-
-        // 开始计算
-        System.out.println(XiaoxueAlgorithm.bigNumberMultiply2(arr1, arr2));
-
-    }
+    
 
 }
