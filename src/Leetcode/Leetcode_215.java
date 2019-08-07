@@ -15,6 +15,7 @@ public class Leetcode_215 {
         return nums[nums.length - k];
     }
 
+
     //方法二：
     /*
      * 使用堆排序
@@ -32,40 +33,35 @@ public class Leetcode_215 {
         return pq.peek();
     }
 
-    //方法三：
-    /*
-     * 使用快排
-     * O(N),O(1)
-     *  */
-    public static int findKthLargest(int[] nums, int k) {
+    public static int findKthLargestThree(int[] nums, int k) {
         k = nums.length - k;
-        int l = 0, h = nums.length - 1;
-        while (l < h) {
-            int j = partition(nums, l, h);
-            if (j == k) {
-                 break;
-            } else if (j < k) {
-                l=j+1;
-            }else {
-                h=j-1;
-            }
+        int low = 0, high = nums.length - 1;
+        while (low < high) {
+            int j = partition(nums, low, high);
+            if (j == k)
+                break;
+            else if (j > k)
+                high = j - 1;
+            else
+                low = j + 1;
         }
         return nums[k];
     }
 
-    private static int partition(int[] nums, int l, int h) {
-        int i = l, j = h + 1;
+    private static int partition(int[] nums, int low, int high) {
+        int i = low;
+        int j = high+1;
         while (true) {
-            while (nums[++i] < nums[l] && i < h) ;
-            while (nums[--j] > nums[l] && j > l) ;
-            if (i >= j) {
+            while (i < high && nums[++i] < nums[low]);
+            while (j > low && nums[low] < nums[--j]);
+            if (i >= j)
                 break;
-            }
             swap(nums, i, j);
         }
-        swap(nums, l, j);
+        swap(nums, low, j);
         return j;
     }
+
 
     private static void swap(int[] nums, int i, int j) {
         int t=nums[i];
@@ -76,8 +72,8 @@ public class Leetcode_215 {
 
     public static void main(String[] args) {
         int[] nums = {
-                3, 2, 1, 5, 6, 4
+                3,2,1,5,6,4
         };
-        System.out.println(findKthLargest(nums, 2));
+        System.out.println(findKthLargestThree(nums, 2));
     }
 }

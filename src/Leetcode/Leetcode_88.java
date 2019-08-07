@@ -13,6 +13,7 @@ public class Leetcode_88 {
         while(nums2Length >=0)
             nums1[length--]=nums2[nums2Length--];
     }
+
     public static void main(String[] args) {
          int[] n1={
                 6,7,8,0,0,0

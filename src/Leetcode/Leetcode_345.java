@@ -26,9 +26,26 @@ public class Leetcode_345 {
         }
         return new String(result);
     }
-
+    public static String reverseVowels2(String s) {
+        String vowel ="aeiouAEIOU";
+        char[] result =new char[s.length()];
+        int i=0,j=s.length()-1;
+        while(i<=j){
+            char ci =s.charAt(i);
+            char cj =s.charAt(j);
+            if (!vowel.contains(Character.toString(s.charAt(i))))
+                result[i++]=ci;
+            else if (!vowel.contains(Character.toString(s.charAt(j))))
+                result[j--]=cj;
+            else {
+                result[i++]=cj;
+                result[j--]=ci;
+            }
+        }
+        return new String(result);
+    }
     public static void main(String[] args) {
-        System.out.println(reverseVowels("hello"));
+        System.out.println(reverseVowels2("hello"));
         System.out.println(reverseVowels("Leetcode"));
         System.out.println(reverseVowels("aeiou"));
     }
