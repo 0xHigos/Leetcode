@@ -68,7 +68,7 @@ public class Leetcode_169 {
         }
         int curNumber =nums[0],count =0;
         for (int num : nums) {
-            ; count =curNumber ==num?count+1:count-1;
+            count =curNumber ==num?count+1:count-1;
             if (count == 0) {
                 count =1;
                 curNumber =num;

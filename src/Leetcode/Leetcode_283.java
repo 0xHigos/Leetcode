@@ -19,14 +19,13 @@ public class Leetcode_283 {
     }
 
     public static void moveZeroess(int[] nums) {
-        int index =0;
-        for (int i = 0; i < nums.length; i++) {
-            if(nums[i]!=0)
-                nums[index++] =nums[i];
+        int i=0,j=-1;
+        while(j<nums.length-1){
+            if(nums[++j]!=0)
+                nums[i++]=nums[j];
         }
-        for (int i = index; i < nums.length; i++) {
-            nums[i] =0;
-        }
+        for(int k=i;k<nums.length;k++)
+            nums[k]=0;
     }
 
     public static void main(String[] args) {
