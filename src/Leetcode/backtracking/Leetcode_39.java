@@ -27,7 +27,6 @@ public class Leetcode_39 {
 
     public static void main(String[] args) {
         Leetcode_39 leetcode =new Leetcode_39();
-
         System.out.println(leetcode.combine(4, 2));
     }
 }
