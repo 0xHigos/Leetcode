@@ -1,0 +1,104 @@
+### 题目定义：
+
+````java
+给你一个整数数组 nums ，和一个表示限制的整数 limit，请你返回最长连续子数组的长度，该子数组中的任意两个元素之间的绝对差必须小于或者等于 limit 。
+
+如果不存在满足条件的子数组，则返回0 。
+
+示例 1：
+输入：nums = [8,2,4,7], limit = 4
+输出：2 
+解释：所有子数组如下：
+[8] 最大绝对差 |8-8| = 0 <= 4.
+[8,2] 最大绝对差 |8-2| = 6 > 4. 
+[8,2,4] 最大绝对差 |8-2| = 6 > 4.
+[8,2,4,7] 最大绝对差 |8-2| = 6 > 4.
+[2] 最大绝对差 |2-2| = 0 <= 4.
+[2,4] 最大绝对差 |2-4| = 2 <= 4.
+[2,4,7] 最大绝对差 |2-7| = 5 > 4.
+[4] 最大绝对差 |4-4| = 0 <= 4.
+[4,7] 最大绝对差 |4-7| = 3 <= 4.
+[7] 最大绝对差 |7-7| = 0 <= 4. 
+因此，满足题意的最长子数组的长度为 2 
+    
+    
+示例 2：
+输入：nums = [10,1,2,4,7,2], limit = 5
+输出：4 
+解释：满足题意的最长子数组是 [2,4,7,2]，其最大绝对差 |2-7| = 5 <= 5 
+  
+    
+示例 3：
+输入：nums = [4,2,2,2,4,4,2,2], limit = 0
+输出：3
+````
+
+### 题目解析：
+
+​	题目的含义是找到一个位置作为左端点，一个位置作为右端点，满足在端点内的区间最大值与最小值的查不超过limit.所以可以使用滑动窗口。又因为需要统计窗口内的最大值与最小值，所以需要某种结构方便统计窗口内的最大值与最小值，这里方式一选择红黑树
+
+### 方式一(滑动窗口 + 红黑树)：
+
+````java
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        TreeMap<Integer, Integer> map = new TreeMap<>();
+        int left = 0, right = 0, ans = 0;
+        while (right < nums.length) {
+            //先将所有的数字和对应数字的频率保存在红黑树中
+            map.put(nums[right], map.getOrDefault(nums[right], 0) + 1);
+            //若最大值-最小值 > limit 则将左侧节点右移一次
+            while (map.lastKey() - map.firstKey() > limit){
+                map.put(nums[left],map.get(nums[left]) - 1);
+                if(map.get(nums[left]) == 0)
+                    map.remove(nums[left]);
+                left++;
+            }
+            ans =Math.max(ans,right - left + 1);
+            right++;
+        }
+        return ans;
+    }
+}
+````
+
+
+
+### 方式二(两个单调队列，一个维护最小值，一个维护最大值)：
+
+````java
+class Solution {
+    //参考两个数组[10,1,2,4,7,2] [1,5,6,7,8,10,6,5,6]
+    public int longestSubarray(int[] nums, int limit) {
+        Deque<Integer> queMax = new LinkedList<>();
+        Deque<Integer> queMin = new LinkedList<>();
+        int n = nums.length;
+        int left = 0,right = 0;
+        int ret = 0;
+        while(right < n){
+            while(!queMax.isEmpty() && queMax.peekLast() < nums[right])
+                queMax.pollLast();
+            while(!queMin.isEmpty() && queMin.peekLast() > nums[right])
+                queMin.pollLast();
+            queMin.offerLast(nums[right]);
+            queMax.offerLast(nums[right]);
+            while(queMax.peekFirst() - queMin.peekFirst() > limit){
+                //下面两种情况可能都不满足
+                if(nums[left] == queMin.peekFirst())
+                    queMin.pollFirst();
+                if(nums[left] == queMax.peekFirst())
+                    queMax.pollFirst();
+                left++;
+            }
+            ret = Math.max(ret,right - left + 1);
+            right++;
+        }
+        return ret;
+    }
+}
+````
+
+### 参考：
+
+> https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/solution/jue-dui-chai-bu-chao-guo-xian-zhi-de-zui-5bki/
+

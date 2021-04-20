@@ -1,0 +1,175 @@
+### 题目定义：
+
+````java
+实现一个基本的计算器来计算一个简单的字符串表达式 s 的值。
+
+示例 1：
+输入：s = "1 + 1"
+输出：2
+    
+示例 2：
+输入：s = " 2-1 + 2 "
+输出：3
+    
+示例 3：
+输入：s = "(1+(4+5+2)-3)+(6+8)"
+输出：23
+提示：
+    1 <= s.length <= 3 * 105
+    s 由数字、'+'、'-'、'('、')'、和 ' ' 组成
+    s 表示一个有效的表达式
+
+````
+
+### 题目解析：
+
+首先考虑，使用双栈，一个保存数字，一个保存操作符，字符串换成字符数组，遍历字符数组
+
++ 如果当前的字符是数字，先通过number保存，然后等下次遍历到操作符的时候再入栈，这样做的意义是，可以正确拿到两位数`14`，三位数`456`这样的数字
++ - 还需要考虑一种特殊情况，就是 +/- `0`，0也需要将它放入数字栈中，所以通过一个标识符判断 当前字符是否是`0`
++ 如果当前字符是 `(`,直接入栈，等待下一个`)`
++ 如果当前字符是`)`,使用当前保存的数字栈和操作符栈计算所有的结果，直到再操作符遇到了`(`,计算结果放回到数字栈中
++ 如果当前字符是`+/-`，在放入栈之前，把可以操作符栈中可以算的，都先算掉，然后再入操作符栈，直到没有操作符或者遇到了`(`为止，计算结果放回到数字栈中
++ 其他细节: 第一个数可能是负操作符，为了减少边界判断。一个小技巧是先往 `nums` 添加一个 0
+
+### 方式一(双栈)：
+
+````java
+class Solution {
+    public int calculate(String s) {
+        s = s.replaceAll("\\(-", "(0-");
+        Deque<Integer> numStack = new LinkedList<>();
+        numStack.push(0);
+        Deque<Character> operatorStack = new LinkedList<>();
+        char[] ch = s.toCharArray();
+        int number = 0;
+        boolean flag = false;
+        for (char c : ch) {
+            if (c == ' ') {
+                continue;
+            }
+            if (c >= '0' && c <= '9') {
+                number = number * 10 + (c - '0');
+                flag = c == '0';
+            } else {
+                if (number != 0 || flag) {
+                    numStack.push(number);
+                    number = 0;
+                    flag = false;
+                }
+                if (c == '(') {
+                    operatorStack.push(c);
+                } else if (c == ')'){
+                    while (!operatorStack.isEmpty()) {
+                        char oper = operatorStack.peek();
+                        if(oper == '('){
+                            operatorStack.pop();
+                            break;
+                        }
+                        cal(numStack, operatorStack);
+                    }
+                }else{
+                    while(!operatorStack.isEmpty() && operatorStack.peekFirst()!='(')
+                        cal(numStack, operatorStack);
+                    operatorStack.push(c);
+                }
+            }
+        }
+        if(number != 0 || flag)
+            numStack.push(number);
+        while (!operatorStack.isEmpty()) {
+            cal(numStack, operatorStack);
+        }
+        return numStack.pop();
+    }
+    private void cal(Deque<Integer> numStack, Deque<Character> operatorStack) {
+        if ((numStack.size() < 2) && !operatorStack.isEmpty())
+            return;
+        int num1 = numStack.pop();
+        int num2 = numStack.pop();
+        char oper = operatorStack.pop();
+        numStack.push(oper == '+' ? num2 + num1 : num2 - num1);
+    }
+}
+````
+
+### 方式二思路：
+
+我们只需要一个栈来辅助计算，用sign表示上一个符号，number表示数字，要用for循环把之后的字符都读进来，然后用sign*num来更新结果res；如果遇到了加号，则sign赋为1，如果遇到了符号，则赋为-1；如果遇到了左括号，则把当前结果res和符号sign压入栈，res重置为0，sign重置为1；如果遇到了右括号，结果res乘以栈顶的符号，栈顶元素出栈，结果res加上栈顶的数字，栈顶元素出栈
+
+### 方式二(单栈)：
+
+````java
+class Solution {
+    public int calculate(String s) {
+        int number = 0,sign = 1,result = 0;
+        char[] ch = s.toCharArray();
+        Deque<Integer> stack = new LinkedList<>();
+        for(char c : ch){
+            if(Character.isDigit(c)){
+                number = number * 10 + (c - '0');
+            }else if(c == '+' || c == '-'){
+                result += number * sign;
+                number = 0;
+                sign = c =='+'? 1 : -1;
+            }else if(c == '('){
+                stack.push(result);
+                stack.push(sign);
+                result = 0;
+                sign = 1;
+            }else if(c ==')'){
+                result += number * sign;
+                result *= stack.pop();
+                result += stack.pop();
+                number = 0;
+                sign = 1;
+            }
+        }
+        if(number != 0){
+            result += number * sign;
+        }
+        return result;
+    }
+}
+````
+
+### 方式三思路：
+
+用一个变量cnt，遇到左括号自增1，遇到右括号自减1，当cnt为0的时候，说明括号正好完全匹配，然后我们就是根据左右括号的位置提取出中间的子字符串调用递归函数，返回值赋给number
+
+### 方式三(递归)：
+
+````java
+class Solution {
+    public int calculate(String s) {
+        int result = 0,sign = 1,number = 0;
+        char[] ch = s.toCharArray();
+        for(int i = 0; i < ch.length; i++){
+            if(Character.isDigit(ch[i])){
+                number = number * 10 + (ch[i] - '0');
+            }else if(ch[i] == '('){
+                int j = i,cnt = 0;
+                for(; i < ch.length; i++){
+                    if(ch[i] =='(') cnt++;
+                    if(ch[i] ==')') cnt--;
+                    if(cnt == 0) break;
+                }
+                number = calculate(s.substring(j + 1,i));
+            }
+            if( ch[i] =='+' || ch[i] == '-' || i == ch.length - 1){
+                result += sign * number;
+                number = 0;
+                sign = (ch[i] == '+') ? 1 : -1;
+            }
+        }
+        return result;
+    }
+}
+````
+
+### 参考：
+
+> https://www.cnblogs.com/grandyang/p/4570699.html
+
+
+
